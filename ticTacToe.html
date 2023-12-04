@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+    <div text-align="center">
+        <head text-align="center">
+            <div text-align="center">
+                <input text-align="center" type="button" value="Start?" onclick="start()">
+            </div>
+        </head>
+    </div>
+    
+    
+    <div text-align="center">
+        <body text-align="center">
+        </body>
+    </div>
+        
+
+    <script>
+        let btnRmv = false;
+        let body = document.getElementsByTagName("body")[0];
+        body.style.margin="1em auto 1em auto";
+
+        let rows = new Array(9);
+        let cols = new Array(9);
+        let diags = new Array(3);
+        let diagRight = new Array(3);
+
+        for(let i=0; i<9; i++){rows[i]=""}
+        for(let i=0; i<9; i++){cols[i]=""}
+        for(let i=0; i<6; i++){diags[i]=""}
+        for(let i=0; i<6; i++){diagRight[i]=""}
+
+        function start(){
+            let tbl = document.createElement("table");
+            let tblDiv = document.createElement("div");
+            tblDiv.appendChild(tbl);
+            tblDiv.setAttribute("text-align", "center");
+            
+            for(let j = 0; j<3; j++){
+                let row = document.createElement("tr");
+
+                for(let i = 0; i<3; i++){
+                    let cell = document.createElement("td");
+                    row.appendChild(cell);
+                }
+                tbl.appendChild(row);
+            }
+            body.appendChild(tbl);
+            tbl.setAttribute("border", "1px solid transparent");
+
+            body.setAttribute("width", "700px");
+            body.setAttribute("height", "700px")
+
+            tbl.setAttribute("width", "600px");
+            tbl.setAttribute("height", "600px");
+            tbl.setAttribute("margin-left", "auto");
+            tbl.setAttribute("margin-right", "auto");
+            tbl.setAttribute("cellspacing", "0");
+            tbl.style.borderColor = "transparent";
+
+            let cells = document.getElementsByTagName("td");
+            
+
+            for(i=0; i<9; i++){
+                    cells[i].innerHTML="";
+                    cells[i].setAttribute("border", "2px solid black");
+                    cells[i].style.borderColor="black";
+                    cells[i].setAttribute("onmouseover", "hover(this)");
+                    cells[i].setAttribute("onmouseout", "unhover(this)");
+                    cells[i].setAttribute("onclick", "play(this)");
+                    cells[i].style.textAlign="center";
+                    cells[i].setAttribute("height", "200px");
+                    cells[i].setAttribute("width", "200px");
+
+                    cells[i].style.fontSize="450%";
+            }
+
+            document.getElementsByTagName("input")[0].remove();
+            btnRmv=true;
+            tbl.setAttribute("table-layout", "fixed");
+            makeListOfCells();
+           }
+
+        function hover(cell){
+                if(btnRmv){
+                    cell.style.borderColor="yellow";
+                }
+           }
+           
+        function unhover(cell){
+                if(btnRmv){
+                    cell.style.borderColor="black";
+                }
+            }
+
+        let turn=0;
+        let listOfCells=[];
+
+        function makeListOfCells(){
+            let tableData = document.getElementsByTagName("td");
+            for(let i=0; i<9; i++){
+                listOfCells.push(tableData[i]);
+            }
+        }
+
+        function play(cell){
+
+            if(cell.innerHTML==""){
+                if(turn%2==0){
+                    cell.innerHTML="X";
+                }
+                else{
+                    cell.innerHTML="O";
+                }
+                turn++;
+            }
+
+            
+            if(cell.innerHTML!="" && cell.innerHTML!= undefined){
+                if( listOfCells.indexOf(cell) % 4 == 0 ){
+                    diags[listOfCells.indexOf(cell) / 4] = cell.innerHTML;  //top left to bottom right diag is divisible by 4
+                }
+
+                if( ((2-( listOfCells.indexOf(cell) % 3))*3 + Math.floor(listOfCells.indexOf(cell)/3)) % 4 ==0){ //since top right to bottom left diag is divisible by 2 but top left to bottom left is also divisible, can't use mod 2. In reality top right to bottom left are multiples of 2.
+                    diagRight[((2-( listOfCells.indexOf(cell) % 3))*3 + Math.floor(listOfCells.indexOf(cell)/3)) / 4] = cell.innerHTML; //rotated form of the matrix by 90 degrees, what was originally top right to bottom left becomes top left to bottom right
+                }
+
+                rows[listOfCells.indexOf(cell)] = cell.innerHTML;
+                cols[(2-( listOfCells.indexOf(cell) % 3))*3 + Math.floor(listOfCells.indexOf(cell)/3)]=cell.innerHTML; // gets the collumns by rotating the matrix by 90 degrees in the same for loop
+            }
+           
+
+            if(checkForVictory(rows, cols, diags, diagRight)){
+                document.getElementsByTagName("table")[0].remove();
+                let node = document.createTextNode("VICTORY!!!!")
+                body.appendChild(node);
+            }
+            if(turn==9){
+                document.getElementsByTagName("table")[0].remove();
+                let node = document.createTextNode("DRAW!!")
+                body.appendChild(node);
+            }
+            
+        }
+
+        function checkForVictory(rows, cols, diagLeft, diagRight){
+                    
+                for(let r = 0; r < 3; r++){
+                    let indexOne=rows[r*3];
+                    let indexColOne=cols[r*3];
+
+                    if(indexOne!=undefined && indexOne!=""){
+                        let indexTwo=rows[r*3 + 1];
+                        
+
+                        if(indexOne==indexTwo && indexOne==rows[r*3 + 1 + 1]){
+                            
+                            return true;
+                        }
+                    }
+                    if(indexColOne!=undefined && indexColOne!=""){
+                        let indexColTwo=cols[r*3 + 1];
+                        if(indexColOne==indexColTwo && indexColOne==cols[r*3 + 1 + 1]){
+
+                            return true;
+                        }
+                    }
+                }
+                if(diagLeft[0]!=0 && diagLeft[0]!=undefined){
+                    if(diagLeft[0]==diagLeft[1] && diagLeft[0]==diagLeft[2]){
+                        return true;
+                    }
+                }
+                if(diagRight[0]!=0 && diagRight[0]!=undefined){
+                    if(diagRight[0]==diagRight[1] && diagRight[0]==diagRight[2]){
+                        return true;
+                    }
+                }
+            return false;
+        }
+
+    </script>
+</html>
